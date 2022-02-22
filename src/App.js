@@ -1,68 +1,84 @@
 import {Component} from 'react'
-import {Switch, Redirect, Route} from 'react-router-dom'
+import {Route, Switch, Redirect} from 'react-router-dom'
 
-import nxtWatchContext from './Context/nxtWatchContext'
-import Login from './components/Login'
+import LoginForm from './components/LoginRoute'
+import HomeRoute from './components/HomeRoute'
 import NotFound from './components/NotFound'
-import Home from './components/Home'
-import Gaming from './components/Gaming'
-import Trending from './components/Trending'
-import VideoItemDetails from './components/VideoItemDetails'
-import ProtectedRoute from './components/ProtectedRoute'
-import SavedVideos from './components/SavedVideos'
+import ProtectedRoute from './components/protectedRoute'
+import VideoDetails from './components/VideoItemDetailsRoute'
+import TrendingRoute from './components/TrendingRoute'
+import GamingRoute from './components/GamingRoute'
+import SavedVideosRoute from './components/SavedVideosRoute'
+
+import CartContext from './context/CartContext'
 
 import './App.css'
 
 class App extends Component {
   state = {
-    isDark: false,
-    savedVideoData: [],
+    isDarkTheme: false,
+    savedVideos: [],
+    activeTab: 'HOME',
   }
 
-  changeTheme = () => {
-    this.setState(prevState => ({
-      isDark: !prevState.isDark,
-    }))
+  onChangeTheme = () => {
+    this.setState(prev => ({isDarkTheme: !prev.isDarkTheme}))
   }
 
-  updatedVideo = videoData => {
-    const {savedVideoData} = this.state
-    const checkVideo = savedVideoData.filter(each => each.id === videoData.id)
+  addToSaveVideos = videoDetails => {
+    const {savedVideos} = this.state
+    const videoObject = savedVideos.find(each => each.id === videoDetails.id)
 
-    if (checkVideo.length === 0) {
-      this.setState(prevState => ({
-        savedVideoData: [...prevState.savedVideoData, videoData],
+    if (videoObject) {
+      this.setState(prev => ({
+        savedVideos: [...prev.savedVideos],
       }))
+    } else {
+      this.setState({savedVideos: [...savedVideos, videoDetails]})
     }
   }
 
+  removeSaveVideos = id => {
+    const {savedVideos} = this.state
+    const updatedVideos = savedVideos.filter(each => each.id !== id)
+    this.setState({savedVideos: updatedVideos})
+  }
+
+  activeTabItem = item => {
+    this.setState({activeTab: item})
+  }
+
   render() {
-    const {savedVideoData, isDark} = this.state
+    const {isDarkTheme, savedVideos, activeTab} = this.state
+    console.log(isDarkTheme)
+
     return (
-      <nxtWatchContext.Provider
+      <CartContext.Provider
         value={{
-          isDark,
-          savedVideoData,
-          changeTheme: this.changeTheme,
-          updateSavedVideo: this.updateSavedVideo,
+          isDarkTheme,
+          savedVideos,
+          addToSaveVideos: this.addToSaveVideos,
+          activeTabItem: this.activeTabItem,
+          activeTab,
+          onChangeTheme: this.onChangeTheme,
+          removeSaveVideos: this.removeSaveVideos,
         }}
       >
         <Switch>
-          <Route exact path="/login" component={Login} />
-          <ProtectedRoute exact path="/" component={Home} />
-          <ProtectedRoute exact path="/gaming" component={Gaming} />
-          <ProtectedRoute exact path="/trending" component={Trending} />
-          <ProtectedRoute exact path="/saved-videos" component={SavedVideos} />
-
+          <Route exact path="/login" component={LoginForm} />
+          <ProtectedRoute exact path="/" component={HomeRoute} />
+          <ProtectedRoute exact path="/trending" component={TrendingRoute} />
+          <ProtectedRoute exact path="/gaming" component={GamingRoute} />
           <ProtectedRoute
             exact
-            path="/videos/:id"
-            component={VideoItemDetails}
+            path="/saved-videos"
+            component={SavedVideosRoute}
           />
+          <ProtectedRoute exact path="/videos/:id" component={VideoDetails} />
           <Route path="/not-found" component={NotFound} />
           <Redirect to="not-found" />
         </Switch>
-      </nxtWatchContext.Provider>
+      </CartContext.Provider>
     )
   }
 }

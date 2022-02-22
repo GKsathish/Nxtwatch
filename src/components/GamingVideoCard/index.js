@@ -1,42 +1,28 @@
 import {
-  VideoListItem,
-  Thumbnail,
+  VideoCardContainer,
+  ThumbnailImage,
+  VideoCardBottomContainer,
   VideoDetailsContainer,
-  VideoDetailsRightContainer,
-  VideoName,
-  VideoSmallDetailsRightBottom,
-  VideoDetailsList,
+  VideoDetailsText,
+  NavLink,
 } from './styledComponents'
 
-import nxtWatchContext from '../../Context/nxtWatchContext'
-
 const GamingVideoCard = props => {
-  const {videoDetails} = props
-  const {id, title, thumbnailUrl, viewCount} = videoDetails
-
+  const {details} = props
+  const {title, id, thumbnailUrl, viewCount} = details
   return (
-    <nxtWatchContext.Consumer>
-      {value => {
-        const {isDark} = value
-
-        const textColor = isDark ? '#f9f9f9' : '#181818'
-
-        return (
-          <VideoListItem to={`/videos/${id}`}>
-            <Thumbnail src={thumbnailUrl} alt="video thumbnail" />
-            <VideoDetailsContainer>
-              <VideoDetailsRightContainer>
-                <VideoName textColor={textColor}>{title}</VideoName>
-                <VideoSmallDetailsRightBottom>
-                  <VideoDetailsList>{`${viewCount} views`}</VideoDetailsList>
-                  <VideoDetailsList>Worldwide</VideoDetailsList>
-                </VideoSmallDetailsRightBottom>
-              </VideoDetailsRightContainer>
-            </VideoDetailsContainer>
-          </VideoListItem>
-        )
-      }}
-    </nxtWatchContext.Consumer>
+    <NavLink to={`videos/${id}`}>
+      <VideoCardContainer>
+        <ThumbnailImage src={thumbnailUrl} alt="video thumbnail" />
+        <VideoCardBottomContainer>
+          <VideoDetailsContainer>
+            <VideoDetailsText>{title}</VideoDetailsText>
+            <VideoDetailsText>{viewCount} views</VideoDetailsText>
+          </VideoDetailsContainer>
+        </VideoCardBottomContainer>
+      </VideoCardContainer>
+    </NavLink>
   )
 }
+
 export default GamingVideoCard
